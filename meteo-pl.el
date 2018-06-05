@@ -89,17 +89,6 @@
 
 
 
-(defun meteo-pl--zoom-in ()
-  (call-process-region
-   (point-min)
-   (point-max)
-   "gm"
-   t
-   t
-   nil
-   "convert" "-" "-resize" "150%" "-"
-  ))
-
 
 
 (defun meteo-pl-show-meteogram ()
@@ -116,8 +105,8 @@
         (url-retrieve-synchronously url)
       (rename-buffer "*meteo-pl: meteogram*" t)
       (meteo-pl--remove-http-headers)
-      (meteo-pl--zoom-in)
       (switch-to-buffer (current-buffer))
+      (goto-char (point-min))
       (image-mode)
       )))
 
