@@ -1,0 +1,6 @@
+#+TITLE: TODOs for meteo-pl
+#+AUTHOR: Marek Rudnicki
+#+CATEGORY: meteo-pl
+
+
+* TODO README                                                         :write:
