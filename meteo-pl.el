@@ -1,11 +1,18 @@
+;;; meteo-pl.el --- Show meteograms from meteo.pl
+
+
+;;; Commentary:
+;;
 
 (require 'url)
 (require 'json)
 
+;;; Code:
+
 (defun meteo-pl--get-row-col ()
-  "Parses buffer and gets values of row=%d col=%d"
+  "Parse buffer and gets values of row=%d col=%d."
   (save-excursion
-    (beginning-of-buffer)
+    (goto-char (point-min))
     (when (re-search-forward "row=\\([0-9]+\\).*col=\\([0-9]+\\)")
       (list (string-to-number (match-string 1))
             (string-to-number (match-string 2))))
@@ -46,7 +53,7 @@
                row
                col
                ))
-    (beginning-of-buffer)
+    (goto-char (point-min))
     (prog1
         (meteo-pl--get-row-col)
       (kill-buffer)
@@ -79,7 +86,7 @@
   (with-current-buffer
       (url-retrieve-synchronously "https://nowe.meteo.pl/models/conf/models_conf.php")
     (meteo-pl--remove-http-headers)
-    (beginning-of-buffer)
+    (goto-char (point-min))
     (prog1
         (json-read-object)
       (kill-buffer))
@@ -116,3 +123,5 @@
 
 
 (provide 'meteo-pl)
+
+;;; meteo-pl.el ends here
