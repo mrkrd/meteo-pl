@@ -5,3 +5,11 @@
 
 * DONE README                                                         :write:
   CLOSED: [2018-07-10 Tue 16:14]
+
+
+* TODO Reuse the buffer
+
+* TODO Proper meteo-pl mode with key bindings
+
+  - [ ] q to kill buffer
+  - [ ] g to refresh the image
