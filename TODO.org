@@ -3,4 +3,5 @@
 #+CATEGORY: meteo-pl
 
 
-* TODO README                                                         :write:
+* DONE README                                                         :write:
+  CLOSED: [2018-07-10 Tue 16:14]

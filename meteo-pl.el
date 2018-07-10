@@ -2,12 +2,18 @@
 
 
 ;;; Commentary:
-;;
+
+;; This package shows meteograms from https://www.meteo.pl/ in GNU
+;; Emacs.
+
+;; Your coordinages can be specified by setting `calendar-latitude`
+;; and `calendar-longitude` variables.  After that you can call
+;; `meteo-pl-show-meteogram`.
+
+;;; Code:
 
 (require 'url)
 (require 'json)
-
-;;; Code:
 
 (defun meteo-pl--get-row-col ()
   "Parse buffer and gets values of row=%d col=%d."

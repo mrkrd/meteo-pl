@@ -1,0 +1,49 @@
+* meteo-pl
+
+Show meteograms from https://www.meteo.pl/ in GNU Emacs.
+
+
+** Installation
+
+- Clone the repository
+
+#+BEGIN_SRC sh
+git clone https://github.com/mrkrd/meteo-pl.git
+#+END_SRC
+
+- Update the load-path
+
+#+BEGIN_SRC elisp
+(add-to-list 'load-path (expand-file-name "~/path/to/meteo-pl"))
+#+END_SRC
+
+- Load meteo-pl
+
+#+BEGIN_SRC elisp
+(require 'meteo-pl)
+#+END_SRC
+
+
+** Usage
+
+- Set coordinates in your configuration file, e.g., .emacs
+
+#+BEGIN_SRC elisp
+(setq calendar-latitude 48.133333)
+(setq calendar-longitude 11.566667)
+#+END_SRC
+
+- Call meteo-pl-show-meteogram
+
+#+BEGIN_EXAMPLE
+M-x meteo-pl-show-meteogram
+#+END_EXAMPLE
+
+
+[[file:emacs-meteo-pl.png]]
+
+
+** License
+
+The project is licensed under the GNU General Public License v3 or
+later (GPLv3+).
