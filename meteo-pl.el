@@ -88,7 +88,7 @@
 
 
 (defun meteo-pl--model-conf ()
-  "Get parameters of the current model as json"
+  "Get parameters of the current model as json."
   (with-current-buffer
       (url-retrieve-synchronously "https://nowe.meteo.pl/models/conf/models_conf.php")
     (meteo-pl--remove-http-headers)
@@ -104,8 +104,8 @@
 
 
 
-(defun meteo-pl-show-meteogram ()
-  (interactive)
+(defun meteo-pl--retrive-meteogram ()
+  "Retrive and return a buffer with image data."
   (let* ((row-col (meteo-pl--search-mgram-pos))
          (rown-coln (apply 'meteo-pl--search-mgram-near row-col))
          (conf (meteo-pl--model-conf))
@@ -116,12 +116,29 @@
          )
     (with-current-buffer
         (url-retrieve-synchronously url)
-      (rename-buffer "*meteo-pl: meteogram*" t)
       (meteo-pl--remove-http-headers)
+      (current-buffer)
+      )))
+
+;; (switch-to-buffer (meteo-pl--retrive-meteogram))
+
+
+(defun meteo-pl-show-meteogram ()
+  (interactive)
+  (let ((meteogram-buf (meteo-pl--retrive-meteogram))
+        )
+    (with-current-buffer
+        (get-buffer-create "*meteo-pl: meteogram*")
+      (fundamental-mode)
+      (erase-buffer)
+      (replace-buffer-contents meteogram-buf)
+      (kill-buffer meteogram-buf)
       (switch-to-buffer (current-buffer))
       (goto-char (point-min))
       (image-mode)
       )))
+
+
 
 ;; (meteo-pl-show-meteogram)
 
