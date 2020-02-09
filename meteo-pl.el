@@ -6,27 +6,29 @@
 ;; This package shows meteograms from https://www.meteo.pl/ in GNU
 ;; Emacs.
 
-;; Your coordinages can be specified by setting `calendar-latitude`
-;; and `calendar-longitude` variables.  After that you can call
-;; `meteo-pl-show-meteogram`.
+;; Your coordinages can be specified by setting `calendar-latitude'
+;; and `calendar-longitude' variables.  After that you can just call
+;; `meteo-pl-show-meteogram'.
 
 ;;; Code:
 
 (require 'url)
 (require 'json)
 
-(defun meteo-pl--get-row-col ()
-  "Parse buffer and gets values of row=%d col=%d."
+
+(defun meteo-pl--get-xyt ()
+  "Parse buffer and gets values of x, y, and time."
   (save-excursion
     (goto-char (point-min))
-    (when (re-search-forward "row=\\([0-9]+\\).*col=\\([0-9]+\\)")
+    (when (re-search-forward "act_x = \\([0-9]+\\).*act_y = \\([0-9]+\\).*fcstdate = \"\\([0-9]+\\)\"")
       (list (string-to-number (match-string 1))
-            (string-to-number (match-string 2))))
+            (string-to-number (match-string 2))
+            (string-to-number (match-string 3))
+            ))
   ))
 
-;; (meteo-pl--get-row-col)
-;; {row=511,col=77}
-
+;; (meteo-pl--get-xyt)
+;; {act_x = 80; act_y = 511; fcstdate = "2020020912" }
 
 
 (defun meteo-pl--remove-http-headers ()
@@ -34,85 +36,30 @@
   )
 
 
-
-(defun meteo-pl--search-mgram-pos ()
-  "Converts lat, lon -> row, col"
+(defun meteo-pl--mgram-search ()
+  "Converts lat, lon -> x, y, and time"
   (with-current-buffer
       (url-retrieve-synchronously
-       (format "https://nowe.meteo.pl/search_mgram_pos?lat=%f&lon=%f&model=0"
+       (format "https://www.meteo.pl/um/php/mgram_search.php?NALL=%f&EALL=%f"
                calendar-latitude
                calendar-longitude
                ))
     (prog1
-        (meteo-pl--get-row-col)
+        (meteo-pl--get-xyt)
       (kill-buffer)
       )))
 
-;; (meteo-pl--search-mgram-pos)
-
-
-(defun meteo-pl--search-mgram-near (row col)
-  "Converts row, col -> row_near, col_near (whatever it means)"
-  (with-current-buffer
-      (url-retrieve-synchronously
-       (format "https://nowe.meteo.pl/search_mgram_near?row=%d&col=%d&model=0"
-               row
-               col
-               ))
-    (goto-char (point-min))
-    (prog1
-        (meteo-pl--get-row-col)
-      (kill-buffer)
-      )))
-
-;; (meteo-pl--search-mgram-near 511 77)
-
-
-
-;; (defun meteo-pl--time-str ()
-;;   (let* ((time (current-time))
-;;          (dtime (decode-time time "UTC0"))
-;;          (ymd-str (format-time-string "%Y%m%d" time "UTC0"))
-;;          (hour (nth 2 dtime))
-;;          (res 6)                          ; in hours
-;;          (hour_round (* (/ hour res) res))
-;;        )
-;;     (format "%s%d" ymd-str hour_round)
-;;     ))
-
-;; (meteo-pl--time-str)
-
-
-
-
-
-
-(defun meteo-pl--model-conf ()
-  "Get parameters of the current model as json."
-  (with-current-buffer
-      (url-retrieve-synchronously "https://nowe.meteo.pl/models/conf/models_conf.php")
-    (meteo-pl--remove-http-headers)
-    (goto-char (point-min))
-    (prog1
-        (json-read-object)
-      (kill-buffer))
-    ))
-
-;; (meteo-pl--model-conf)
-
-
-
+;; (meteo-pl--mgram-search)
 
 
 (defun meteo-pl--retrive-meteogram ()
   "Retrive and return a buffer with image data."
-  (let* ((row-col (meteo-pl--search-mgram-pos))
-         (rown-coln (apply 'meteo-pl--search-mgram-near row-col))
-         (conf (meteo-pl--model-conf))
-         (url (format "https://nowe.meteo.pl/um4/mgram/mgram_pict.php?ntype=0u&date=%s&row=%d&col=%d&lang=en"
-                      (alist-get 'fulldate conf)
-                      (nth 0 rown-coln)
-                      (nth 1 rown-coln)))
+  (let* ((xyt (meteo-pl--mgram-search))
+         (url (format "https://www.meteo.pl/um/metco/mgram_pict.php?ntype=0u&col=%d&row=%d&fdate=%s&lang=en"
+                      (nth 0 xyt)
+                      (nth 1 xyt)
+                      (nth 2 xyt)
+                      ))
          )
     (with-current-buffer
         (url-retrieve-synchronously url)
@@ -138,11 +85,7 @@
       (image-mode)
       )))
 
-
-
 ;; (meteo-pl-show-meteogram)
-
-
 
 
 (provide 'meteo-pl)
